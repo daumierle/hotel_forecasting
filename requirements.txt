@@ -1,0 +1,7 @@
+torch==2.0.1
+pandas
+numpy
+matplotlib
+statsmodels
+scikit-learn
+seaborn

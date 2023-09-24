@@ -1,3 +1,5 @@
+import os
+import argparse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -70,13 +72,20 @@ def create_inout_sequence(input_data, tw):
 
 
 if __name__ == "__main__":
-    data_path = '/Users/danielle13/Desktop/Research/data/hotel_bookings.csv'
-    model_path = '/Users/danielle13/Desktop/Research/ckpt/hotel_lstm.pt'
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data_path", type=str, required=True, help="Path where data is stored.")
+    parser.add_argument("--model_path", type=str, default="./ckpt",
+                        help="Path where trained model will be stored.")
+    args = parser.parse_args()
+
+    if not os.path.exists(args.model_path):
+        os.makedirs(args.model_path)
+
     do_train = False
     train_window = 365
 
     # Create train - test data
-    train_data, test_data = data_loader(data_path)
+    train_data, test_data = data_loader(args.data_path)
 
     train_inputs = torch.tensor(train_data['occupancy'].values, dtype=torch.float32)
     # print(train_inputs.shape)
@@ -105,7 +114,7 @@ if __name__ == "__main__":
 
             print(f'epoch: {i:3} loss: {loss.item():10.8f}')
 
-        torch.save(model.state_dict(), model_path)
+        torch.save(model.state_dict(), args.model_path)
 
     else:
         # Test the model
@@ -113,7 +122,7 @@ if __name__ == "__main__":
         test_inputs = train_inputs[-train_window:].tolist()
         preds = list()
 
-        model.load_state_dict(torch.load(model_path))
+        model.load_state_dict(torch.load(args.model_path))
         model.eval()
 
         for i in range(fut_pred):

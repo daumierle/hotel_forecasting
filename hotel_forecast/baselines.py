@@ -1,3 +1,4 @@
+import argparse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -413,8 +414,11 @@ def arma(data_boxcox_diff, train_boxcox_diff, data_boxcox, daily, train, valid, 
 
 
 if __name__ == '__main__':
-    path = 'C:/Users/Dat/Downloads/CSV + JSON files/hotel_bookings.csv'
-    daily, train, valid = data_loader(path)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data_path", type=str, required=True, help="Path where data is stored.")
+    args = parser.parse_args()
+
+    daily, train, valid = data_loader(args.data_path)
     train_len = data_viz(train)
     data_boxcox, train_boxcox, valid_boxcox, fitted_lambda = boxcox_trans(daily, train_len)
     data_boxcox_diff, train_boxcox_diff, valid_boxcox_diff = differencing(daily, data_boxcox)
@@ -426,8 +430,11 @@ if __name__ == '__main__':
     final_results = final_results.append(holt_trend(train, valid), ignore_index=True)
     final_results = final_results.append(holt_add(train, valid), ignore_index=True)
     final_results = final_results.append(holt_mult(train, valid), ignore_index=True)
-    final_results = final_results.append(auto_regress(data_boxcox_diff, train_boxcox_diff, data_boxcox, daily, train, valid, fitted_lambda), ignore_index=True)
-    final_results = final_results.append(moving_avg(data_boxcox_diff, train_boxcox_diff, data_boxcox, daily, train, valid, fitted_lambda), ignore_index=True)
-    final_results = final_results.append(arma(data_boxcox_diff, train_boxcox_diff, data_boxcox, daily, train, valid, fitted_lambda), ignore_index=True)
+    final_results = final_results.append(auto_regress(data_boxcox_diff, train_boxcox_diff, data_boxcox, daily, train,
+                                                      valid, fitted_lambda), ignore_index=True)
+    final_results = final_results.append(moving_avg(data_boxcox_diff, train_boxcox_diff, data_boxcox, daily, train,
+                                                    valid, fitted_lambda), ignore_index=True)
+    final_results = final_results.append(arma(data_boxcox_diff, train_boxcox_diff, data_boxcox, daily, train, valid,
+                                              fitted_lambda), ignore_index=True)
 
     print(final_results)
